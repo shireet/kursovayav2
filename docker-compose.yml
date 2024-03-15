@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    environment:
+      RABBITMQ_DEFAULT_USER: "user"
+      RABBITMQ_DEFAULT_PASS: "password"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - "rabbitmq_data:/var/lib/rabbitmq"
+      - "rabbitmq_log:/var/log/rabbitmq"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis_data:/data"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  manager:
+    build: .
+    volumes:
+      - .:/app
+    cpus: 0 
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    #healthcheck:
+    #  test: ["CMD", "manager", "status"]
+    #  interval: 30s
+    #  timeout: 10s
+    #  retries: 5
+
+  worker:
+    build: .
+    command: python ./worker/worker.py
+    volumes:
+      - .:/app
+    cpus: 0 
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      mode: replicated
+      replicas: ${NUM_WORKERS}
+    #healthcheck:
+    #  test: ["CMD", "worker", "status"]
+    #  interval: 30s
+    #  timeout: 10s
+    #  retries: 5
+      
+    #gui:
+    #  build: .
+    #  command: python ./gui/window.py
+    #  volumes: 
+    #    - .:/app
+    #  depends_on:
+    #    manager:
+    #      condition: service_healthy
+    #    worker:
+    #      condition: service_healthy
+      
+
+volumes:
+  rabbitmq_data:
+  rabbitmq_log:
+  redis_data:

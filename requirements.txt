@@ -1,0 +1,9 @@
+aio_pika
+numpy
+scikit-learn
+fastapi
+uvicorn
+redis
+pydantic
+tkintertable
+tkinterdnd2

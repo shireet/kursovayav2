@@ -1,0 +1,24 @@
+{
+  "fast": {
+    "host": "0.0.0.0",
+    "name": "localhost",
+    "port": 8000
+  },
+  "rabbitmq": {
+    "user": "user",
+    "password": "password",
+    "routing_key": "request_queue"
+  },
+  "redis": {
+    "host": "redis",
+    "port": 6379
+  },
+  "k_mean": {
+    "convergence_threshold": 0.01,
+    "parts": 2,
+    "centers": 3
+  },
+  "workers": {
+    "number": 1
+  }
+}
